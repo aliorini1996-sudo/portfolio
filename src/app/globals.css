@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/* ===== هوية «نامي» — الثيم الداكن (design source) ===== */
+@theme {
+  --color-bg: #0c0906; /* خلفية الصفحة */
+  --color-app: #14100d; /* حاوية التطبيق */
+  --color-side: #1a130e; /* الشريط الجانبي */
+  --color-card: #1e1813; /* البطاقات */
+  --color-card2: #0e0b08; /* بطاقة داكنة */
+  --color-card3: #26201a; /* فقاعات/دروس */
+  --color-line: #2a2018;
+  --color-line2: #33291f;
+  --color-line3: #221a13;
+  --color-ink: #f2eadf; /* النص الرئيسي */
+  --color-body: #d8c8b4; /* نص المتن */
+  --color-mut: #b8a794; /* ثانوي */
+  --color-mut2: #8a7862; /* خافت */
+  --color-mut3: #7a6650; /* أخفت */
+  --color-nav: #9a8b7a; /* تنقّل غير نشط */
+  --color-amber: #f0a94b; /* اللون الرئيسي */
+  --color-green: #5fcb95; /* أرباح */
+  --color-green2: #4cb782;
+  --color-red: #e0604a; /* خسائر */
+  --color-red2: #e8825c;
+  --color-purple: #b49be0; /* المتوسط المتحرك */
+
+  --font-sans: var(--font-arabic);
+  --font-mono: var(--font-mono-nums);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  font-family: var(--font-arabic), system-ui, sans-serif;
+  direction: rtl;
+  -webkit-font-smoothing: antialiased;
+  color: var(--color-ink);
+}
+
+/* الأرقام — IBM Plex Mono بمحاذاة جدولية واتجاه لاتيني */
+.mono {
+  font-family: var(--font-mono-nums), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+input,
+button,
+textarea,
+select {
+  font-family: inherit;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-mut3);
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(240, 169, 75, 0.2);
+  border-radius: 9px;
+}
+
+/* حركات التصميم */
+@keyframes livepulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 183, 130, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(76, 183, 130, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 183, 130, 0);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* إخفاء أسهم حقول الأرقام */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

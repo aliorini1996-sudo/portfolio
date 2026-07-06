@@ -1,0 +1,9 @@
+{
+  "regions": ["fra1"],
+  "crons": [
+    {
+      "path": "/portfolio/api/binance/autopilot/daily",
+      "schedule": "0 20 * * *"
+    }
+  ]
+}
