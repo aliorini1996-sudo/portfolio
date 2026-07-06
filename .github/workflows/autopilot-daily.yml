@@ -1,0 +1,23 @@
+name: Autopilot Daily Close
+
+# الإقفال اليومي 23:00 بتوقيت السعودية (20:00 UTC) — بديل Vercel Cron
+on:
+  schedule:
+    - cron: "0 20 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: autopilot-daily
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger daily close on Render
+        run: |
+          code=$(curl -sS -o /tmp/out.json -w "%{http_code}" -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://portfolio-hrbz.onrender.com/portfolio/api/binance/autopilot/daily")
+          echo "HTTP $code"; cat /tmp/out.json; echo
+          test "$code" = "200"
