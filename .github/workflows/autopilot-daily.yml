@@ -16,16 +16,19 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Trigger daily close on Render
-        # السرّ عبر env لا داخل النص (يمنع حقن السكربت) ثم يُنظَّف من أي سطر جديد:
-        # سرّ مخزَّن بسطر جديد لاحق يجعل ترويسة Authorization غير صالحة → curl(43) وفشل صامت
-        # (كان يُفشل كل إقفال يومي مجدول منذ 16 يوليو 2026).
+        # POST بـ x-autopilot-secret: هو ما يقبله المسار فعلياً على Render (AUTOPILOT_SECRET).
+        # (مسار GET يطلب CRON_SECRET غير المضبوط على Render.) السرّ عبر env ويُنظَّف من أي سطر جديد —
+        # كان سرّ بسطر لاحق يُفشل كل إقفال يومي مجدول منذ 16 يوليو 2026 بـ curl(43) صامتاً.
         env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AUTOPILOT_SECRET: ${{ secrets.AUTOPILOT_SECRET }}
         run: |
-          SECRET="$(printf '%s' "$CRON_SECRET" | tr -d '\r\n')"
-          if [ -z "$SECRET" ]; then echo "::error::CRON_SECRET فارغ في أسرار المستودع"; exit 1; fi
-          code=$(curl -sS -o /tmp/out.json -w "%{http_code}" --max-time 180 -X GET \
-            -H "Authorization: Bearer $SECRET" \
+          SECRET="$(printf '%s' "$AUTOPILOT_SECRET" | tr -d '\r\n')"
+          if [ -z "$SECRET" ]; then
+            echo "::error::سرّ النبضة غير مضبوط في أسرار المستودع — أضِفه بنفس قيمته على Render"
+            exit 1
+          fi
+          code=$(curl -sS -o /tmp/out.json -w "%{http_code}" --max-time 180 -X POST \
+            -H "x-autopilot-secret: $SECRET" \
             "https://portfolio-hrbz.onrender.com/portfolio/api/binance/autopilot/daily")
           echo "HTTP $code"; cat /tmp/out.json; echo
           test "$code" = "200"
