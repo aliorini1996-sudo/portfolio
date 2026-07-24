@@ -18,10 +18,16 @@ jobs:
     timeout-minutes: 6
     steps:
       - name: Trigger tick on Render
+        # السرّ عبر env لا داخل النص (يمنع حقن السكربت) ثم يُنظَّف من أي سطر جديد:
+        # سرّ مخزَّن بسطر جديد لاحق يجعل ترويسة Authorization غير صالحة → curl(43) وفشل صامت.
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          SECRET="$(printf '%s' "$CRON_SECRET" | tr -d '\r\n')"
+          if [ -z "$SECRET" ]; then echo "::error::CRON_SECRET فارغ في أسرار المستودع"; exit 1; fi
           # مهلة سخية: خدمة Render قد تكون نائمة وتحتاج إيقاظاً عند أول طلب
           code=$(curl -sS -o /tmp/out.json -w "%{http_code}" --max-time 180 -X GET \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Authorization: Bearer $SECRET" \
             "https://portfolio-hrbz.onrender.com/portfolio/api/binance/autopilot/tick")
           echo "HTTP $code"; cat /tmp/out.json; echo
           test "$code" = "200"
