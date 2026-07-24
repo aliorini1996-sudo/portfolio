@@ -1,0 +1,27 @@
+name: Autopilot Tick
+
+# نبضة المضاربة كل 15 دقيقة — تفحص فرص الدخول، وتكشف تنفيذ أوامر OCO وتسجّل أرباحها.
+# ملاحظة: الخروج نفسه (جني الربح/الوقف) ينفّذ لحظياً على Binance عبر OCO ولا ينتظر هذه النبضة.
+# بديل نبضة fieldsa.net القديمة (فيرسل ملغى — كانت تردّ 200 فارغاً فلا يضارب البوت إطلاقاً).
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: autopilot-tick
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Trigger tick on Render
+        run: |
+          # مهلة سخية: خدمة Render قد تكون نائمة وتحتاج إيقاظاً عند أول طلب
+          code=$(curl -sS -o /tmp/out.json -w "%{http_code}" --max-time 180 -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://portfolio-hrbz.onrender.com/portfolio/api/binance/autopilot/tick")
+          echo "HTTP $code"; cat /tmp/out.json; echo
+          test "$code" = "200"
